@@ -2,8 +2,8 @@
 
 on:
   schedule:
-    - cron: "0 23 * * *"   # 北京时间 07:00 (UTC 23:00)
-    - cron: "0 6 * * *"    # 北京时间 14:00 (UTC 06:00)
+    - cron: "10 0 * * *"    # 北京时间 08:10 (UTC 00:10)
+    - cron: "30 8 * * *"    # 北京时间 16:30 (UTC 08:30)
   workflow_dispatch:
 
 jobs:
@@ -12,11 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Determine mode (UTC 23→daily, UTC 6→selected)
+      - name: Determine mode
         id: mode
         run: |
-          HOUR=$(date -u +%H)
-          if [ "$HOUR" = "23" ]; then
+          HOUR=$(date -u +%k | tr -d ' ')
+          if [ "$HOUR" = "0" ]; then
             echo "mode=daily" >> $GITHUB_OUTPUT
           else
             echo "mode=selected" >> $GITHUB_OUTPUT
