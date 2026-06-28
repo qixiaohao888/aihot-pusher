@@ -1,0 +1,29 @@
+﻿name: AI HOT → WxPusher
+
+on:
+  schedule:
+    - cron: "0 23 * * *"   # 北京时间 07:00 (UTC 23:00)
+    - cron: "0 6 * * *"    # 北京时间 14:00 (UTC 06:00)
+  workflow_dispatch:
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine mode (UTC 23→daily, UTC 6→selected)
+        id: mode
+        run: |
+          HOUR=$(date -u +%H)
+          if [ "$HOUR" = "23" ]; then
+            echo "mode=daily" >> $GITHUB_OUTPUT
+          else
+            echo "mode=selected" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run push
+        env:
+          WXPUSHER_TOKEN: ${{ secrets.WXPUSHER_TOKEN }}
+          WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
+        run: python push.py ${{ steps.mode.outputs.mode }}
